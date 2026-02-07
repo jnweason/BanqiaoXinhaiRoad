@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DF工程室內裝修 - 板橋新海路估價單</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --light-bg: #f8f9fa;
+            --text: #333;
+            --gray: #666;
+            --border: #e9ecef;
+            --success: #27ae60;
+            --danger: #e74c3c;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", Roboto, sans-serif;
+            margin: 0; padding: 0; background-color: #f0f2f5; color: var(--text); 
+            line-height: 1.5; padding-bottom: 100px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary), #1a252f);
+            color: white; padding: 25px 20px; text-align: center;
+            border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .header h1 { margin: 0; font-size: 1.4rem; letter-spacing: 1px; }
+        .header .sub-title { font-size: 0.9rem; opacity: 0.9; margin-top: 5px; }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 15px; }
+
+        /* Project Info Card */
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem; }
+        .info-item label { display: block; color: #95a5a6; font-size: 0.75rem; margin-bottom: 2px; }
+        .info-item span { font-weight: 600; color: var(--primary); }
+
+        /* Donut Chart (CSS Only) */
+        .chart-section { display: flex; flex-direction: column; align-items: center; padding: 10px 0; }
+        .donut-chart {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: conic-gradient(
+                #e74c3c 0% 11%,    /* 拆除 */
+                #f39c12 11% 26%,   /* 水電 */
+                #3498db 26% 60%,   /* 木作 */
+                #95a5a6 60% 73%,   /* 泥作 */
+                #9b59b6 73% 80%,   /* 門窗 */
+                #2ecc71 80% 91%,   /* 油漆 */
+                #34495e 91% 100%   /* 地板 */
+            );
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .donut-hole {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 130px; height: 130px; background: white; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .chart-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; font-size: 0.75rem; }
+        .legend-item { display: flex; align-items: center; gap: 4px; background: #f8f9fa; padding: 4px 8px; border-radius: 4px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: block; }
+
+        /* Accordion Styles (Details/Summary) */
+        details {
+            background: white; border-radius: 10px; margin-bottom: 12px;
+            overflow: hidden; transition: all 0.3s;
+            border: 1px solid transparent;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        details[open] { border-color: var(--accent); box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1); }
+        
+        summary {
+            padding: 15px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; list-style: none; user-select: none;
+            background: white; position: relative; z-index: 10;
+        }
+        summary::-webkit-details-marker { display: none; }
+        
+        .cat-header { display: flex; align-items: center; gap: 10px; }
+        .cat-icon { 
+            width: 28px; height: 28px; border-radius: 50%; background: var(--light-bg); 
+            color: var(--primary); display: flex; align-items: center; justify-content: center; 
+            font-size: 14px; font-weight: bold; border: 1px solid #eee;
+        }
+        .cat-title { font-weight: bold; font-size: 1.05rem; }
+        .cat-total { color: var(--accent); font-weight: bold; font-size: 1rem; }
+        
+        /* Detailed List Items */
+        .item-list { background: #fafafa; border-top: 1px solid #f1f1f1; padding: 5px 15px 15px 15px; }
+        
+        .detail-item {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-top: 10px;
+            padding: 12px;
+            position: relative;
+        }
+        
+        .item-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .item-index { 
+            background: #eee; color: #555; font-size: 0.7rem; padding: 2px 6px; 
+            border-radius: 4px; margin-right: 8px; display: inline-block;
+        }
+        .item-name { font-weight: bold; color: #2c3e50; font-size: 0.95rem; flex: 1; }
+        .item-subtotal { font-weight: bold; color: var(--primary); font-size: 1rem; margin-left: 10px; }
+        
+        .item-specs {
+            display: flex; gap: 15px; font-size: 0.85rem; color: #555; 
+            border-bottom: 1px dashed #eee; padding-bottom: 8px; margin-bottom: 8px;
+        }
+        .spec-pill { background: #f8f9fa; padding: 2px 8px; border-radius: 4px; border: 1px solid #eee; }
+        
+        .item-remark { font-size: 0.85rem; color: #666; background: #fff8e1; padding: 6px 10px; border-radius: 4px; line-height: 1.4; }
+        .remark-label { color: #e67e22; font-weight: bold; font-size: 0.75rem; margin-right: 4px; }
+
+        /* Total Section */
+        .total-section { background: white; padding: 20px; border-radius: 12px; margin-top: 20px; }
+        .total-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; color: #666; }
+        .total-final { 
+            display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; 
+            border-top: 2px solid #eee; font-size: 1.2rem; font-weight: bold; color: var(--primary); 
+        }
+
+        /* Footer & FAB */
+        .footer { text-align: center; color: #aaa; font-size: 0.8rem; margin-top: 30px; margin-bottom: 20px; }
+        
+        .fab-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px 20px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08); display: flex; justify-content: space-between; 
+            align-items: center; z-index: 100; border-top: 1px solid #eee;
+        }
+        .fab-btn { 
+            background: var(--success); color: white; text-decoration: none; 
+            padding: 10px 24px; border-radius: 50px; font-weight: bold; font-size: 0.95rem;
+            display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <h1>DF工程室內裝修</h1>
+    <div class="sub-title">板橋新海路簡宅．報價明細單</div>
+</header>
+
+<div class="container">
+    <div class="card">
+        <div class="info-grid">
+            <div class="info-item"><label>客戶姓名</label><span>簡小姐</span></div>
+            <div class="info-item"><label>報價日期</label><span>2026-02-06</span></div>
+            <div class="info-item"><label>承辦人員</label><span>Eason</span></div>
+            <div class="info-item"><label>聯絡電話</label><span>0970-229-119</span></div>
+            <div class="info-item" style="grid-column: span 2;"><label>施工地址</label><span>新北市板橋區新海路135巷33號4樓之2</span></div>
+        </div>
+    </div>
+
+    <div class="card chart-section">
+        <h3 style="margin:0 0 15px 0; font-size:1rem; color:#666;">預算佔比分析</h3>
+        <div class="donut-chart">
+            <div class="donut-hole">
+                <span style="font-size:0.8rem; color:#888;">總金額</span>
+                <span style="font-weight:bold; color:var(--primary); font-size:1.1rem;">178.5萬</span>
+            </div>
+        </div>
+        <div class="chart-legend">
+            <div class="legend-item"><span class="dot" style="background:#e74c3c"></span>拆除12%</div>
+            <div class="legend-item"><span class="dot" style="background:#f39c12"></span>水電15%</div>
+            <div class="legend-item"><span class="dot" style="background:#3498db"></span>木作37%</div>
+            <div class="legend-item"><span class="dot" style="background:#95a5a6"></span>泥作14%</div>
+            <div class="legend-item"><span class="dot" style="background:#9b59b6"></span>門窗7%</div>
+            <div class="legend-item"><span class="dot" style="background:#2ecc71"></span>油漆11%</div>
+            <div class="legend-item"><span class="dot" style="background:#34495e"></span>地板4%</div>
+        </div>
+    </div>
+
+    <h3 style="margin-left: 5px; margin-bottom: 12px; font-size: 1rem; color: #555;">工程詳細報價 (點擊類別展開)</h3>
+
+    <details>
+        <summary>
+            <div class="cat-header"><span class="cat-icon">1</span> <span class="cat-title">拆除工程</span></div>
+            <span class="cat-total">$210,000</span>
+        </summary>
+        <div class="item-list">
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">1</span>客浴拆除</div><div class="item-subtotal">$21,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $21,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">2</span>主浴拆除</div><div class="item-subtotal">$15,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $15,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">3</span>全室窗戶拆除含門框</div><div class="item-subtotal">$20,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $20,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">4</span>冰箱上方天花板拆除</div><div class="item-subtotal">$8,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $8,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">5</span>主臥、次臥衣櫃拆除</div><div class="item-subtotal">$6,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $6,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">6</span>次臥架高地板拆除</div><div class="item-subtotal">$23,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $23,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">7</span>全屋門片拆除</div><div class="item-subtotal">$30,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $30,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>主臥含廁所、次臥含廁所、廚房、三合一通風門</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">8</span>搬運工</div><div class="item-subtotal">$12,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 6 人</span><span class="spec-pill">單價: $2,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">9</span>垃圾車</div><div class="item-subtotal">$60,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 3 車</span><span class="spec-pill">單價: $20,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">10</span>公共區域保護</div><div class="item-subtotal">$15,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $15,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>大陸一分夾板</div>
+            </div>
+        </div>
+    </details>
+
+    <details>
+        <summary>
+            <div class="cat-header"><span class="cat-icon">2</span> <span class="cat-title">水電工程</span></div>
+            <span class="cat-total">$269,200</span>
+        </summary>
+        <div class="item-list">
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">1</span>全室抽換線</div><div class="item-subtotal">$45,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $45,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">2</span>電箱加大</div><div class="item-subtotal">$32,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $32,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>含打石</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">3</span>無熔絲開關增加</div><div class="item-subtotal">$7,200</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 4 組</span><span class="spec-pill">單價: $1,800</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">4</span>開關面板更換</div><div class="item-subtotal">$22,500</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 15 組</span><span class="spec-pill">單價: $1,500</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">5</span>插座面板更換</div><div class="item-subtotal">$37,500</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 25 組</span><span class="spec-pill">單價: $1,500</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">6</span>全室崁燈</div><div class="item-subtotal">$25,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 25 顆</span><span class="spec-pill">單價: $1,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>含線路延伸開孔與安裝(15公分白光)</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">7</span>冷熱水管更新</div><div class="item-subtotal">$40,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $40,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">8</span>客浴衛浴設備六件套</div><div class="item-subtotal">$35,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 組</span><span class="spec-pill">單價: $35,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>凱薩、面盆、馬桶、蓮蓬頭、毛巾架、鏡子、龍頭(含安裝)</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">9</span>主浴衛浴設備</div><div class="item-subtotal">$25,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 組</span><span class="spec-pill">單價: $25,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>馬桶、面盆、龍頭(含安裝)</div>
+            </div>
+        </div>
+    </details>
+
+    <details>
+        <summary>
+            <div class="cat-header"><span class="cat-icon">3</span> <span class="cat-title">木作工程</span></div>
+            <span class="cat-total">$645,750</span>
+        </summary>
+        <div class="item-list">
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">1</span>全室平釘天花板</div><div class="item-subtotal">$52,500</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 15 坪</span><span class="spec-pill">單價: $3,500</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>台製矽酸蓋板、防蟲角材</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">2</span>雙衛浴PVC天花板</div><div class="item-subtotal">$16,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 2 間</span><span class="spec-pill">單價: $8,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">3</span>主臥、次臥衣櫃</div><div class="item-subtotal">$154,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 14 尺</span><span class="spec-pill">單價: $11,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>百順科技板</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">4</span>電視矮櫃</div><div class="item-subtotal">$28,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 7 尺</span><span class="spec-pill">單價: $4,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>百順科技板</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">5</span>電視吊櫃</div><div class="item-subtotal">$24,500</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 7 尺</span><span class="spec-pill">單價: $3,500</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>百順科技板</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">6</span>電視牆</div><div class="item-subtotal">$35,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $35,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>百順科技板</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">7</span>一字型廚具</div><div class="item-subtotal">$250,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $250,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>含鋼琴烤漆、人造石、烤漆玻璃</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">7</span>窗簾盒</div><div class="item-subtotal">$15,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 25 尺</span><span class="spec-pill">單價: $600</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">8</span>冷氣背板</div><div class="item-subtotal">$6,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 3 組</span><span class="spec-pill">單價: $2,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">9</span>包柱</div><div class="item-subtotal">$15,750</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 35 尺</span><span class="spec-pill">單價: $450</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">10</span>木纖門組</div><div class="item-subtotal">$33,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 3 組</span><span class="spec-pill">單價: $11,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>含門框、水平鎖五金</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">11</span>塑鋼門組</div><div class="item-subtotal">$16,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 2 組</span><span class="spec-pill">單價: $8,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>含門框、水平鎖五金</div>
+            </div>
+
+        </div>
+    </details>
+
+    <details>
+        <summary>
+            <div class="cat-header"><span class="cat-icon">4</span> <span class="cat-title">泥作工程</span></div>
+            <span class="cat-total">$240,400</span>
+        </summary>
+        <div class="item-list">
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">1</span>雙衛浴打底</div><div class="item-subtotal">$36,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 2 間</span><span class="spec-pill">單價: $18,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">2</span>雙衛浴防水工程</div><div class="item-subtotal">$16,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 2 間</span><span class="spec-pill">單價: $8,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">3</span>雙浴室壁磚</div><div class="item-subtotal">$20,400</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 12 坪</span><span class="spec-pill">單價: $1,700</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">4</span>雙衛浴地磚</div><div class="item-subtotal">$16,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 2 間</span><span class="spec-pill">單價: $8,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">5</span>門框泥作修補</div><div class="item-subtotal">$12,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 6 組</span><span class="spec-pill">單價: $2,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">6</span>氣密窗泥作修補</div><div class="item-subtotal">$10,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 4 組</span><span class="spec-pill">單價: $2,500</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">7</span>壁磚材料</div><div class="item-subtotal">$65,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $65,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>三洋磁磚</div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">7</span>地磚材料</div><div class="item-subtotal">$65,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $65,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>三洋磁磚</div>
+            </div>
+
+        </div>
+    </details>
+
+    <details>
+        <summary>
+            <div class="cat-header"><span class="cat-icon">5</span> <span class="cat-title">門窗工程</span></div>
+            <span class="cat-total">$140,000</span>
+        </summary>
+        <div class="item-list">
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">1</span>隔音窗</div><div class="item-subtotal">$90,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 3 樘</span><span class="spec-pill">單價: $30,000</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">2</span>大型隔音窗</div><div class="item-subtotal">$50,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 樘</span><span class="spec-pill">單價: $50,000</span></div>
+            </div>
+        </div>
+    </details>
+
+    <details>
+        <summary>
+            <div class="cat-header"><span class="cat-icon">6</span> <span class="cat-title">油漆工程</span></div>
+            <span class="cat-total">$200,000</span>
+        </summary>
+        <div class="item-list">
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">1</span>全室油漆工程</div><div class="item-subtotal">$200,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $200,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>虹牌水泥漆(含新作天花板、窗簾盒、冷氣背板)</div>
+            </div>
+        </div>
+    </details>
+
+    <details>
+        <summary>
+            <div class="cat-header"><span class="cat-icon">7</span> <span class="cat-title">地板工程</span></div>
+            <span class="cat-total">$80,000</span>
+        </summary>
+        <div class="item-list">
+            <div class="detail-item">
+                <div class="item-top"><div class="item-name"><span class="item-index">1</span>室內SPC卡扣地板</div><div class="item-subtotal">$80,000</div></div>
+                <div class="item-specs"><span class="spec-pill">數量: 1 式</span><span class="spec-pill">單價: $80,000</span></div>
+                <div class="item-remark"><span class="remark-label">備註</span>不含廁所與廚房</div>
+            </div>
+        </div>
+    </details>
+
+    <div class="total-section">
+        <div class="total-row"><span>小計 (未稅)</span><span>$1,785,350</span></div>
+        <div class="total-final">
+            <span>總報價金額</span>
+            <span>$1,785,350</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        注意事項：本報價單有效期限為一個月。<br>
+        付款方式：簽約10%、保護20%、水電30%、木作30%、尾款10%。
+    </div>
+
+</div>
+
+<div class="fab-bar">
+    <div>
+        <div style="font-size:0.75rem; color:#888;">總額(未稅)</div>
+        <div style="font-weight:bold; color:var(--primary); font-size:1.1rem;">$1,785,350</div>
+    </div>
+    <a href="tel:0918225975" class="fab-btn">📞 聯絡師傅</a>
+</div>
+
+</body>
+</html>
